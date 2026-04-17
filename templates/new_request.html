@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}Новая заявка{% endblock %}
+{% block content %}
+<div class="card">
+  <h2>Новая заявка</h2>
+  <form method="post">
+    <label>ФИО<input type="text" name="fio" required></label>
+    <label>Телефон<input type="tel" name="phone" required></label>
+    <label>Email<input type="email" name="email" required></label>
+    <label>Дата и время<input type="datetime-local" name="dt" required></label>
+    <label>Поле 1<input type="text" name="field1"></label>
+    <label>Поле 2<input type="text" name="field2"></label>
+    <label>Поле 3<input type="text" name="field3"></label>
+    <label>Выбор
+      <select name="choice" required>
+        {% for c in choices %}<option value="{{ c }}">{{ c }}</option>{% endfor %}
+      </select>
+    </label>
+    <button class="btn btn-primary" type="submit">Отправить</button>
+    <a href="{{ url_for('cabinet') }}" class="btn">Отмена</a>
+  </form>
+</div>
+{% endblock %}

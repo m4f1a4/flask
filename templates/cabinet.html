@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block title %}Кабинет{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h2>Мои заявки</h2>
+  <a href="{{ url_for('new_request') }}" class="btn btn-primary">Новая заявка</a>
+</div>
+{% if rows %}
+<div class="table-wrap">
+<table>
+  <thead><tr>
+    <th>#</th><th>ФИО</th><th>Телефон</th><th>Email</th><th>Дата и время</th>
+    <th>Поле 1</th><th>Поле 2</th><th>Поле 3</th><th>Выбор</th>
+    <th>Создана</th><th>Статус</th><th>Ответ</th>
+  </tr></thead>
+  <tbody>
+    {% for r in rows %}
+    <tr>
+      <td>{{ r.id }}</td>
+      <td>{{ r.fio }}</td>
+      <td>{{ r.phone }}</td>
+      <td>{{ r.email }}</td>
+      <td>{{ r.dt|replace('T',' ') }}</td>
+      <td>{{ r.field1 }}</td>
+      <td>{{ r.field2 }}</td>
+      <td>{{ r.field3 }}</td>
+      <td>{{ r.choice }}</td>
+      <td>{{ r.created_at }}</td>
+      <td><span class="status status-{{ r.status|replace(' ','-') }}">{{ r.status }}</span></td>
+      <td>{{ r.answer or '—' }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+{% if pages > 1 %}
+<div class="pagination">
+  {% for p in range(1, pages+1) %}
+    <a href="?page={{ p }}" class="{% if p==page %}active{% endif %}">{{ p }}</a>
+  {% endfor %}
+</div>
+{% endif %}
+{% else %}
+<p class="empty">У вас пока нет заявок.</p>
+{% endif %}
+{% endblock %}

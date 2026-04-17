@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block title %}Админ-панель{% endblock %}
+{% block content %}
+<h2>Заявки</h2>
+<form method="get" class="filters">
+  <input type="text" name="q" placeholder="Поиск (ФИО, тел, email)" value="{{ q }}">
+  <select name="status">
+    <option value="">Все статусы</option>
+    {% for s in statuses %}
+      <option value="{{ s }}" {% if s==status %}selected{% endif %}>{{ s }}</option>
+    {% endfor %}
+  </select>
+  <button class="btn" type="submit">Фильтр</button>
+  <a href="{{ url_for('admin') }}" class="btn">Сброс</a>
+</form>
+{% if rows %}
+<div class="table-wrap">
+<table>
+  <thead><tr>
+    <th>#</th><th>ФИО</th><th>Телефон</th><th>Email</th><th>Дата и время</th>
+    <th>Поле 1</th><th>Поле 2</th><th>Поле 3</th><th>Выбор</th><th>Создана</th>
+    <th>Статус и ответ</th>
+  </tr></thead>
+  <tbody>
+    {% for r in rows %}
+    <tr>
+      <td>{{ r.id }}</td>
+      <td>{{ r.fio }}</td>
+      <td>{{ r.phone }}</td>
+      <td>{{ r.email }}</td>
+      <td>{{ r.dt|replace('T',' ') }}</td>
+      <td>{{ r.field1 }}</td>
+      <td>{{ r.field2 }}</td>
+      <td>{{ r.field3 }}</td>
+      <td>{{ r.choice }}</td>
+      <td>{{ r.created_at }}</td>
+      <td>
+        <form method="post" action="{{ url_for('update_request', rid=r.id) }}" class="status-form">
+          <select name="status">
+            {% for s in statuses %}
+              <option value="{{ s }}" {% if s==r.status %}selected{% endif %}>{{ s }}</option>
+            {% endfor %}
+          </select>
+          <input type="text" name="answer" placeholder="Ответ" value="{{ r.answer or '' }}">
+          <button class="btn btn-primary" type="submit">OK</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+{% if pages > 1 %}
+<div class="pagination">
+  {% for p in range(1, pages+1) %}
+    <a href="?page={{ p }}&status={{ status }}&q={{ q }}" class="{% if p==page %}active{% endif %}">{{ p }}</a>
+  {% endfor %}
+</div>
+{% endif %}
+{% else %}
+<p class="empty">Заявок не найдено.</p>
+{% endif %}
+{% endblock %}

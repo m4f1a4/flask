@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block title %}Главная{% endblock %}
+{% block content %}
+<section class="hero">
+  <h1>Добро пожаловать</h1>
+  <p>Краткое описание сервиса или компании. Зарегистрируйтесь, чтобы подать заявку.</p>
+  {% if not session.uid %}
+    <a href="{{ url_for('register') }}" class="btn btn-primary">Начать</a>
+  {% endif %}
+</section>
+{% endblock %}
