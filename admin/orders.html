@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Заявки — АвтоДеталь</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+          crossorigin="anonymous" referrerpolicy="no-referrer">
+</head>
+<body>
+<header class="topbar">
+    <div class="wrap" style="max-width:1360px">
+        <a href="{{ url_for('index') }}" class="topbar__brand" style="text-decoration:none">
+            <div class="topbar__icon">АД</div>
+            <div>
+                <span class="topbar__title">АвтоДеталь
+                    <span class="topbar__sub">Панель администратора</span>
+                </span>
+            </div>
+        </a>
+        <div style="display:flex;align-items:center;gap:12px">
+            <span style="color:var(--text-dim);font-size:.9rem">{{ session.get('admin_name','admin') }}</span>
+            <a href="{{ url_for('admin_logout') }}" class="btn-sm">Выйти</a>
+        </div>
+    </div>
+</header>
+
+<section class="order-sect" style="flex:1">
+    <div class="wrap" style="max-width:1360px">
+        <div class="adm-head">
+            <h2>Заявки на подбор</h2>
+        </div>
+
+        <!-- Фильтры -->
+        <form class="filters" method="get" action="{{ url_for('admin_orders') }}">
+            <div>
+                <label for="status">Статус</label>
+                <select name="status" id="status">
+                    <option value="all" {{ 'selected' if status_f=='all' }}>Все</option>
+                    <option value="1" {{ 'selected' if status_f=='1' }}>Новая</option>
+                    <option value="2" {{ 'selected' if status_f=='2' }}>В работе</option>
+                    <option value="3" {{ 'selected' if status_f=='3' }}>Готово</option>
+                    <option value="4" {{ 'selected' if status_f=='4' }}>Отменена</option>
+                </select>
+            </div>
+            <div>
+                <label for="df">Дата от</label>
+                <input type="date" name="df" id="df" value="{{ date_from }}">
+            </div>
+            <div>
+                <label for="dt">Дата до</label>
+                <input type="date" name="dt" id="dt" value="{{ date_to }}">
+            </div>
+            <div style="grid-column:span 2">
+                <label for="q">Имя / телефон / марка / VIN</label>
+                <input type="search" name="q" id="q" placeholder="Поиск" value="{{ q }}">
+            </div>
+            <div>
+                <button type="submit" class="btn-filter">Применить</button>
+            </div>
+        </form>
+
+        <!-- Таблица -->
+        <div class="tbl-wrap">
+            <table class="orders">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Имя</th>
+                        <th>Телефон</th>
+                        <th>Авто</th>
+                        <th>VIN</th>
+                        <th>Категория</th>
+                        <th>Описание</th>
+                        <th>Связь</th>
+                        <th>Статус</th>
+                        <th>Причина отмены</th>
+                        <th>Действие</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% if not rows %}
+                    <tr><td colspan="11" style="text-align:center;padding:24px;color:var(--text-dim)">Нет заявок по фильтру</td></tr>
+                {% endif %}
+                {% for r in rows %}
+                    {% set sid = r['status_id'] %}
+                    <tr>
+                        <td>{{ r['id'] }}</td>
+                        <td>{{ r['client_name'] }}</td>
+                        <td>{{ r['phone'] }}</td>
+                        <td>{{ r['car_brand'] }} {{ r['car_model'] }} {{ r['car_year'] }}</td>
+                        <td style="font-size:.82rem;word-break:break-all">{{ r['vin_number'] or '—' }}</td>
+                        <td>{{ r['part_category'] }}</td>
+                        <td style="max-width:180px;font-size:.85rem;word-break:break-word">{{ r['part_description'][:80] }}{% if r['part_description']|length > 80 %}…{% endif %}</td>
+                        <td>{{ r['contact_method'] }}</td>
+                        <td>
+                            <span class="badge badge--{{ 'new' if sid==1 else 'work' if sid==2 else 'done' if sid==3 else 'cancel' }}"
+                                  data-role="badge-{{ r['id'] }}">
+                                {{ r['status_name'] }}
+                            </span>
+                        </td>
+                        <td style="max-width:160px;font-size:.83rem;word-break:break-word"
+                            data-role="reason-{{ r['id'] }}">{{ r['cancel_reason'] or '—' }}</td>
+                        <td>
+                            <a class="mini-lnk" href="{{ url_for('admin_detail', oid=r['id']) }}">Подробнее</a>
+                            {% if sid in (1,2) %}
+                            <br>
+                            <select class="status-chg" data-id="{{ r['id'] }}" data-cur="{{ sid }}">
+                                {% if sid == 1 %}
+                                <option value="1" selected>Новая</option>
+                                <option value="2">В работе</option>
+                                <option value="4">Отменена</option>
+                                {% else %}
+                                <option value="2" selected>В работе</option>
+                                <option value="3">Готово</option>
+                                <option value="4">Отменена</option>
+                                {% endif %}
+                            </select>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<footer class="foot">
+    <div class="wrap" style="max-width:1360px"><div class="foot__inner">
+        <span class="foot__copy">&copy; ИП Артюхова Н.П. — админ</span>
+    </div></div>
+</footer>
+
+<script src="{{ url_for('static', filename='main.js') }}"></script>
+<script>
+// всплывающее уведомление
+function toast(text, bad) {
+    var d = document.createElement('div');
+    d.textContent = text;
+    d.style.cssText = 'position:fixed;top:16px;right:16px;padding:12px 20px;border-radius:8px;z-index:9999;color:#fff;font-size:.95rem;background:' +
+        (bad ? '#c0392b' : '#27ae60') + ';box-shadow:0 4px 14px rgba(0,0,0,.25)';
+    document.body.appendChild(d);
+    setTimeout(function () { d.remove(); }, 3000);
+}
+
+// смена статуса через fetch
+document.querySelectorAll('select.status-chg').forEach(function (sel) {
+    sel.addEventListener('change', function () {
+        var id  = sel.dataset.id;
+        var cur = parseInt(sel.dataset.cur);
+        var val = parseInt(sel.value);
+        if (val === cur) return;
+
+        var reason = '';
+        if (val === 4) {
+            reason = prompt('Причина отмены (обязательно):','');
+            if (reason === null || !reason.trim()) {
+                sel.value = cur; return;
+            }
+            reason = reason.trim();
+        }
+
+        var body = 'order_id=' + id + '&status_id=' + val;
+        if (val === 4) body += '&cancel_reason=' + encodeURIComponent(reason);
+
+        fetch('{{ url_for("admin_update_status") }}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: body
+        })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+            if (!data.success) { toast(data.message || 'Ошибка', true); sel.value = cur; return; }
+            toast('Статус обновлён');
+            sel.dataset.cur = val;
+
+            // обновляем бейдж
+            var b = document.querySelector('[data-role="badge-' + id + '"]');
+            if (b && data.status_name) {
+                b.textContent = data.status_name;
+                b.className = 'badge badge--' +
+                    (val===1?'new': val===2?'work': val===3?'done':'cancel');
+            }
+            // причина отмены
+            if (val === 4 && data.cancel_reason) {
+                var rc = document.querySelector('[data-role="reason-' + id + '"]');
+                if (rc) rc.textContent = data.cancel_reason;
+            }
+            // если терминальный статус — убираем селект
+            if (val === 3 || val === 4) {
+                sel.parentNode.innerHTML = '<a class="mini-lnk" href="/admin/order/' + id + '">Подробнее</a>';
+            }
+        })
+        .catch(function () { toast('Ошибка сети', true); sel.value = cur; });
+    });
+});
+</script>
+</body>
+</html>

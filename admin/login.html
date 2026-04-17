@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход — АвтоДеталь</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+          crossorigin="anonymous" referrerpolicy="no-referrer">
+    <style>
+        .login-wrap {
+            flex: 1; display: flex; align-items: center; justify-content: center;
+            background: linear-gradient(135deg, var(--bg-panel), #1f2125);
+            padding: 40px 20px;
+        }
+        .login-box {
+            width: 100%; max-width: 400px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-accent);
+            border-radius: var(--radius);
+            padding: 36px 30px;
+        }
+        .login-box h2 {
+            font-family: var(--font-head); font-size: 1.4rem;
+            text-align: center; margin-bottom: 22px; color: var(--text-bright);
+        }
+        .login-box label { display: block; margin-top: 14px; margin-bottom: 5px; color: var(--text-dim); }
+        .login-box input {
+            width: 100%; height: 46px; border-radius: var(--radius);
+            border: 1px solid var(--border); background: var(--bg-input);
+            color: #fff; padding: 0 14px; font-size: 1rem; font-family: var(--font-body);
+        }
+        .login-box input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 10px rgba(224,122,47,.2); }
+        .login-box .btn-main { margin-top: 24px; width: 100%; }
+        .login-box .back { text-align: center; margin-top: 18px; font-size: .9rem; }
+        .login-box .back a { color: var(--text-dim); }
+    </style>
+</head>
+<body>
+<header class="topbar">
+    <div class="wrap">
+        <a href="{{ url_for('index') }}" class="topbar__brand" style="text-decoration:none">
+            <div class="topbar__icon">АД</div>
+            <div>
+                <span class="topbar__title">АвтоДеталь
+                    <span class="topbar__sub">Панель администратора</span>
+                </span>
+            </div>
+        </a>
+    </div>
+</header>
+
+<div class="login-wrap">
+    <div class="login-box">
+        <h2>Вход в панель</h2>
+
+        {% for cat, msg in get_flashed_messages(with_categories=true) %}
+            {% if cat == 'err' %}
+                <div class="msg msg--err">{{ msg }}</div>
+            {% endif %}
+        {% endfor %}
+
+        <form method="post" action="{{ url_for('admin_login') }}">
+            <label for="login">Логин</label>
+            <input type="text" id="login" name="login" required autocomplete="username">
+            <label for="password">Пароль</label>
+            <input type="password" id="password" name="password" required autocomplete="current-password">
+            <button type="submit" class="btn-main">Войти</button>
+        </form>
+        <p class="back"><a href="{{ url_for('index') }}">&larr; На главную</a></p>
+    </div>
+</div>
+
+<footer class="foot">
+    <div class="wrap"><div class="foot__inner">
+        <span class="foot__copy">&copy; ИП Артюхова Н.П.</span>
+    </div></div>
+</footer>
+<script src="{{ url_for('static', filename='main.js') }}"></script>
+</body>
+</html>
